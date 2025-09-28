@@ -13,11 +13,26 @@ const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",  
+  "https://todolist-2-qicj.onrender.com"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error("CORS policy not allowed"), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 app.get("/api/test", (req, res) => {
-    res.json("chal rha hai");
+  res.json("chal rha hai");
 });
 
 // Signup
@@ -120,7 +135,7 @@ app.delete("/api/todos/:id", auth, async (req, res) => {
 });
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
-    });
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
 });

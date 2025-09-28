@@ -10,8 +10,9 @@ export default function Signup({ onSignupSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("clicked");
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/signup`, {
+      const res = await fetch(`${API_BASE}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -20,7 +21,7 @@ export default function Signup({ onSignupSuccess }) {
 
       if (res.ok) {
         alert("Signup successful! Please login.");
-        onSignupSuccess(); // switch to login form
+        onSignupSuccess(); 
       } else {
         alert(data.message);
       }
