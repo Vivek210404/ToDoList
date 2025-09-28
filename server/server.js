@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const Todo = require("./models/Todo");
+const auth = require("./middleware/auth");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -62,6 +63,62 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// get user todos
+app.get("/api/todos", auth, async (req, res) => {
+  try {
+    const todos = await Todo.find({ userId: req.user.id }).sort({ createdAt: 1 }).select("_id task isDone createdAt");
+    res.json({ todos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
+// create todo
+app.post("/api/todos", auth, async (req, res) => {
+  try {
+    const { task } = req.body || {};
+    if (!task || !task.trim()) return res.status(400).json({ message: "task required" });
+
+    const todo = new Todo({ userId: req.user.id, task: task.trim() });
+    await todo.save();
+    res.status(201).json({ id: todo._id, task: todo.task, isDone: todo.isDone });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
+// update todos
+app.put("/api/todos/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { task, isDone } = req.body || {};
+    const update = {};
+    if (task !== undefined) update.task = task;
+    if (isDone !== undefined) update.isDone = isDone;
+
+    const todo = await Todo.findOneAndUpdate({ _id: id, userId: req.user.id }, { $set: update }, { new: true });
+    if (!todo) return res.status(404).json({ message: "Not found" });
+    res.json({ id: todo._id, task: todo.task, isDone: todo.isDone });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
+//delete todo
+app.delete("/api/todos/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await Todo.findOneAndDelete({ _id: id, userId: req.user.id });
+    if (!result) return res.status(404).json({ message: "Not found" });
+    res.json({ message: "deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "server error" });
+  }
+});
 
 connectDB().then(() => {
     app.listen(PORT, () => {
