@@ -14,7 +14,7 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+app.use(cors());
 app.use(express.json());
 
 app.get("/api/test", (req, res) => {
