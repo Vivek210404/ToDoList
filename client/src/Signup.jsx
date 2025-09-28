@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 
 export default function Signup({ onSignupSuccess }) {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -10,7 +11,7 @@ export default function Signup({ onSignupSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:4000/api/signup", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
